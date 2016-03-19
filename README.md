@@ -16,3 +16,13 @@ In summary, the run_analysis.R script...
 5. Changes the data column names to descriptive names
 6. Changes the activity data to descriptive names
 7. Produces an aggregated tidy data file of activities by subject
+
+Steps to reproduce this project
+ 1. Open the R script run_analysis.r in edit mode using preferred editor.
+ 2. Amend the setwd function call to the working directory/folder (i.e., the folder where these the R script file is saved) as appropriate.
+ 3. Run the R script run_analysis.r
+
+It produces the following output which is a tab-delimited file with a tidy data set - 
+
+ ActivityMeasurementUsingSmartPhone.txt (tab-delimited text)
+ 
