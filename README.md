@@ -7,7 +7,7 @@ The data is accelerometer information from a test among 30 subjects using the Sa
 
 https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 
-In summary, the R script...
+In summary, the run_analysis.R script...
 
 1. Downloads and unzips the appropriate data file into a working directory
 2. Converts the raw data into R data frame objects
