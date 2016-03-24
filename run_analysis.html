@@ -110,24 +110,88 @@ $(document).ready(function () {
 
 <h1 class="title">run_analysis.R</h1>
 <h4 class="author"><em>Nagesh</em></h4>
-<h4 class="date"><em>Sat Mar 19 12:19:08 2016</em></h4>
+<h4 class="date"><em>Thu Mar 24 22:21:17 2016</em></h4>
 
 </div>
 
 
-<pre class="r"><code>##
+<pre class="r"><code>##########################################################################################################
+
+# run_analysis.R  
+
+# 
+#
+# This script creates a tidy data set from the study, &quot;Smartphone-Based Human Activity Recognition.&quot; 
+#
+# Here is the link to the study -  http://www.tdx.cat/bitstream/handle/10803/284725/TJLRO1de1.pdf?sequence=1
+# 
+#  
+#
+# Required packages: plyr dplyr knitr memisc
+#
+# To arrive at a tidy data set, the following steps are performed as per instructions
+# 
+#
+# 0  Download the raw data
+#
+# 1. Merge the training and the test sets to create one data set.
+# 2. Extract only the measurements on the mean and standard deviation for each measurement.
+# 3. Use descriptive activity names to name the activities in the data set
+# 4. Appropriately label the data set with descriptive variable names.
+# 5. From the data set in step 4, create a second, independent tidy data set with the average of each variable for each activity and each subject.
+##########################################################################################################
+
+##
 ## preparatory steps
 ##
-library(data.table)
-library(reshape2)</code></pre>
+library(plyr)
+library(dplyr)</code></pre>
 <pre><code>## 
-## Attaching package: 'reshape2'</code></pre>
-<pre><code>## The following objects are masked from 'package:data.table':
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:plyr':
 ## 
-##     dcast, melt</code></pre>
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(knitr)
+library(memisc)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: MASS</code></pre>
+<pre><code>## 
+## Attaching package: 'MASS'</code></pre>
+<pre><code>## The following object is masked from 'package:dplyr':
+## 
+##     select</code></pre>
+<pre><code>## 
+## Attaching package: 'memisc'</code></pre>
+<pre><code>## The following objects are masked from 'package:dplyr':
+## 
+##     collect, query, rename</code></pre>
+<pre><code>## The following object is masked from 'package:plyr':
+## 
+##     rename</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     contr.sum, contr.treatment, contrasts</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     as.array</code></pre>
+<pre class="r"><code>#
+#  Replace dir as apporporiate
+#
 setwd(&quot;C:\\R\\CleanData\\Project&quot;)
 wd &lt;- getwd()
+#
+# set path
+#
+input_path &lt;- paste0(wd,&quot;\\UCI HAR Dataset&quot;)
+output_path &lt;- paste0(wd,&quot;\\output&quot;)
+
 ##
 ## Download file
 ##
@@ -138,173 +202,154 @@ download.file(file_url, file.path(wd, file_name))
 ## Extract file from zip
 ##
 unzip(file_name)
-input_path &lt;- paste0(wd,&quot;\\UCI HAR Dataset&quot;)
-output_path &lt;- paste0(wd,&quot;\\output&quot;)
 list.files(input_path, recursive = TRUE)</code></pre>
-<pre><code>##  [1] &quot;activity_labels.txt&quot;                         
-##  [2] &quot;features.txt&quot;                                
-##  [3] &quot;features_info.txt&quot;                           
-##  [4] &quot;README.txt&quot;                                  
-##  [5] &quot;test/Inertial Signals/body_acc_x_test.txt&quot;   
-##  [6] &quot;test/Inertial Signals/body_acc_y_test.txt&quot;   
-##  [7] &quot;test/Inertial Signals/body_acc_z_test.txt&quot;   
-##  [8] &quot;test/Inertial Signals/body_gyro_x_test.txt&quot;  
-##  [9] &quot;test/Inertial Signals/body_gyro_y_test.txt&quot;  
-## [10] &quot;test/Inertial Signals/body_gyro_z_test.txt&quot;  
-## [11] &quot;test/Inertial Signals/total_acc_x_test.txt&quot;  
-## [12] &quot;test/Inertial Signals/total_acc_y_test.txt&quot;  
-## [13] &quot;test/Inertial Signals/total_acc_z_test.txt&quot;  
-## [14] &quot;test/subject_test.txt&quot;                       
-## [15] &quot;test/X_test.txt&quot;                             
-## [16] &quot;test/y_test.txt&quot;                             
-## [17] &quot;train/Inertial Signals/body_acc_x_train.txt&quot; 
-## [18] &quot;train/Inertial Signals/body_acc_y_train.txt&quot; 
-## [19] &quot;train/Inertial Signals/body_acc_z_train.txt&quot; 
-## [20] &quot;train/Inertial Signals/body_gyro_x_train.txt&quot;
-## [21] &quot;train/Inertial Signals/body_gyro_y_train.txt&quot;
-## [22] &quot;train/Inertial Signals/body_gyro_z_train.txt&quot;
-## [23] &quot;train/Inertial Signals/total_acc_x_train.txt&quot;
-## [24] &quot;train/Inertial Signals/total_acc_y_train.txt&quot;
-## [25] &quot;train/Inertial Signals/total_acc_z_train.txt&quot;
-## [26] &quot;train/subject_train.txt&quot;                     
-## [27] &quot;train/X_train.txt&quot;                           
-## [28] &quot;train/y_train.txt&quot;</code></pre>
-<pre class="r"><code>##
-## Read training  data set.
-##
-
-# subject
-data_Sub_Train &lt;- fread(file.path(input_path, &quot;train&quot;, &quot;subject_train.txt&quot;))
-data_Sub_Test &lt;- fread(file.path(input_path, &quot;test&quot;, &quot;subject_test.txt&quot;))
-# activity
-data_act_Train &lt;- fread(file.path(input_path, &quot;train&quot;, &quot;subject_train.txt&quot;))
-data_act_Test &lt;- fread(file.path(input_path, &quot;test&quot;, &quot;subject_test.txt&quot;))
+<pre><code>##  [1] &quot;activity_labels.txt&quot;                                
+##  [2] &quot;DatasetHumanActivityRecognitionUsingSmartphones.txt&quot;
+##  [3] &quot;features.txt&quot;                                       
+##  [4] &quot;features_info.txt&quot;                                  
+##  [5] &quot;README.txt&quot;                                         
+##  [6] &quot;test/Inertial Signals/body_acc_x_test.txt&quot;          
+##  [7] &quot;test/Inertial Signals/body_acc_y_test.txt&quot;          
+##  [8] &quot;test/Inertial Signals/body_acc_z_test.txt&quot;          
+##  [9] &quot;test/Inertial Signals/body_gyro_x_test.txt&quot;         
+## [10] &quot;test/Inertial Signals/body_gyro_y_test.txt&quot;         
+## [11] &quot;test/Inertial Signals/body_gyro_z_test.txt&quot;         
+## [12] &quot;test/Inertial Signals/total_acc_x_test.txt&quot;         
+## [13] &quot;test/Inertial Signals/total_acc_y_test.txt&quot;         
+## [14] &quot;test/Inertial Signals/total_acc_z_test.txt&quot;         
+## [15] &quot;test/subject_test.txt&quot;                              
+## [16] &quot;test/X_test.txt&quot;                                    
+## [17] &quot;test/y_test.txt&quot;                                    
+## [18] &quot;train/Inertial Signals/body_acc_x_train.txt&quot;        
+## [19] &quot;train/Inertial Signals/body_acc_y_train.txt&quot;        
+## [20] &quot;train/Inertial Signals/body_acc_z_train.txt&quot;        
+## [21] &quot;train/Inertial Signals/body_gyro_x_train.txt&quot;       
+## [22] &quot;train/Inertial Signals/body_gyro_y_train.txt&quot;       
+## [23] &quot;train/Inertial Signals/body_gyro_z_train.txt&quot;       
+## [24] &quot;train/Inertial Signals/total_acc_x_train.txt&quot;       
+## [25] &quot;train/Inertial Signals/total_acc_y_train.txt&quot;       
+## [26] &quot;train/Inertial Signals/total_acc_z_train.txt&quot;       
+## [27] &quot;train/subject_train.txt&quot;                            
+## [28] &quot;train/X_train.txt&quot;                                  
+## [29] &quot;train/y_train.txt&quot;</code></pre>
+<pre class="r"><code>##########################################################################################################
+# Step 1: Merge the training and the test sets to create one data set.
+##########################################################################################################
+# 
+# Read the features file and assign to a data frame - 561 items
 #
-
-
-data_Train_f &lt;- read.table(file.path(input_path, &quot;train&quot;, &quot;X_train.txt&quot;))
-data_Train_tab &lt;- data.table(data_Train_f)
-
-data_Test_f &lt;- read.table(file.path(input_path, &quot;test&quot;, &quot;X_test.txt&quot;))
-data_Test_tab &lt;- data.table(data_Test_f)
-
-##
-## Merge the training and the test sets to create one data set.
-##
-
-##
-##   Merge Training and Test Subjects
-##
-
-data_Sub_tab &lt;- rbind(data_Sub_Train, data_Sub_Test)
-setnames(data_Sub_tab, &quot;V1&quot;, &quot;subject&quot;)
-##
-##   Merge Training and Test Activities
-##
-data_Act_tab &lt;- rbind(data_act_Train, data_act_Test)
-setnames(data_Act_tab, &quot;V1&quot;, &quot;activityNum&quot;)
-data_Merged_tab &lt;- rbind(data_Train_tab, data_Test_tab)
-
-##
-##   Merge Columns
-##
-data_Sub_tab &lt;- cbind(data_Sub_tab, data_Act_tab)
-data_Merged_tab &lt;- cbind(data_Sub_tab, data_Merged_tab)
-#Set key
-
-setkey(data_Merged_tab, subject, activityNum)
-## Extracts only the measurements on the mean and standard deviation for each measurement.
-
-data_Features &lt;- fread(file.path(input_path, &quot;features.txt&quot;))
-setnames(data_Features, names(data_Features), c(&quot;featureNum&quot;, &quot;featureName&quot;))
-data_Features &lt;- data_Features[grepl(&quot;mean\\(\\)|std\\(\\)&quot;, featureName)]
-
-
-data_Features$featureCode &lt;- data_Features[, paste0(&quot;V&quot;, featureNum)]
-head(data_Features)</code></pre>
-<pre><code>##    featureNum       featureName featureCode
-## 1:          1 tBodyAcc-mean()-X          V1
-## 2:          2 tBodyAcc-mean()-Y          V2
-## 3:          3 tBodyAcc-mean()-Z          V3
-## 4:          4  tBodyAcc-std()-X          V4
-## 5:          5  tBodyAcc-std()-Y          V5
-## 6:          6  tBodyAcc-std()-Z          V6</code></pre>
-<pre class="r"><code>#
-#Subset these variables using variable names.
+features_list &lt;- read.table('UCI HAR Dataset/features.txt',header=FALSE, stringsAsFactors = FALSE); 
 #
-
-select &lt;- c(key(data_Merged_tab), data_Features$featureCode)
-data_Merged_tab &lt;- data_Merged_tab[, select, with = FALSE]
+# Convert to lower case for consistency
 #
-# ## Uses descriptive activity names to name the activities in the data set ( based on activity_lables.txt)
+features_list$V2 &lt;- tolower(features_list$V2) 
+
+# Read  Activity Labels from file:
+activity_labels &lt;-read.table('UCI HAR Dataset/activity_labels.txt',header=FALSE);
 #
-data_ActNames &lt;- fread(file.path(input_path, &quot;activity_labels.txt&quot;))
-setnames(data_ActNames, names(data_ActNames), c(&quot;activityNum&quot;, &quot;activityName&quot;))
-# Merge activity lables
-data_Merged_tab &lt;- merge(data_Merged_tab, data_ActNames, by = &quot;activityNum&quot;, all.x = TRUE)
+# Convert to lower case for consistency
 #
-## Appropriately labels the data set with descriptive variable names.
+activity_labels$V2 &lt;- tolower(activity_labels$V2)
+
+# Read activity ids for training
+train_activity_Id &lt;- read.table('UCI HAR Dataset/train/Y_train.txt',header=FALSE) 
+
+# Read activity ids for test
+test_activity_Id &lt;- read.table('UCI HAR Dataset/test/y_test.txt',header=FALSE)
+
+# Read file for observations per subject for training (21 subjects, 7352 total obs)
+Train_obs &lt;-read.table('UCI HAR Dataset/train/subject_train.txt',header=FALSE) 
+
+# Read file for observations per subject for test (9 subjects, 2947 total obs) 
+Test_obs &lt;- read.table('UCI HAR Dataset/test/subject_test.txt',header=FALSE)
+
+# Read in the training and  test data sets
+
+# Read in training data (called the 'Training set'in README.txt) into a data frame:
+Training_Set &lt;- read.table('UCI HAR Dataset/train/X_train.txt',header=FALSE)
+
+# Read in test data (called the 'Test set'in README.txt) into a data frame:
+Test_Set &lt;- read.table('UCI HAR Dataset/test/x_test.txt',header=FALSE)
+
+# Assign sensible variable names to all data sets
+colnames(Train_obs) &lt;- &quot;subject&quot;
+colnames(Test_obs) &lt;- &quot;subject&quot;
+colnames(Training_Set) &lt;- features_list[,2]
+colnames(Test_Set) &lt;- features_list$V2 # features[,2]
+colnames(train_activity_Id) &lt;- &quot;activityid&quot;;
+colnames(test_activity_Id) &lt;- &quot;activityid&quot;;
+
+# create full training and test data sets: append subject and activity_Id variables to x_train &amp; x_test 
+Training_Set_c &lt;- cbind(Training_Set,Train_obs,train_activity_Id)
+Test_Set_c &lt;- cbind(Test_Set,Test_obs,test_activity_Id)
+
+# Merge test and train data sets
+merged_Data &lt;- rbind(Training_Set_c,Test_Set_c)
+
+##########################################################################################################
+# Step 2: Extract only the measurements on the mean and standard deviation for each measurement
+# (but also include the activityid and subject variables, as I will need those later)
+##########################################################################################################
+
 #
-#Add activityName as a key.
-
-setkey(data_Merged_tab, subject, activityNum, activityName)
-
-# Melt the data table to reshape it from a short and wide format to a tall and narrow format.
-
-data_Merged_tab &lt;- data.table(melt(data_Merged_tab, key(data_Merged_tab), variable.name = &quot;featureCode&quot;))
-
-# Merge activity name.
-
-data_Merged_tab &lt;- merge(data_Merged_tab, data_Features[, list(featureNum, featureCode, featureName)], by = &quot;featureCode&quot;, 
-            all.x = TRUE)
-
-#Appropriately labels the data set with descriptive variable names.
-# Create a new variable, activity that is equivalent to activityName as a factor class. Create a new variable, feature that is equivalent to featureName as a factor class.
-
-data_Merged_tab$activity &lt;- factor(data_Merged_tab$activityName)
-data_Merged_tab$feature &lt;- factor(data_Merged_tab$featureName)
-
-
-match_feat &lt;- function(expr) {
-  grepl(expr, data_Merged_tab$feature)
-}
-## Features with 2 categories
-n &lt;- 2
-y &lt;- matrix(seq(1, n), nrow = n)
-x &lt;- matrix(c(match_feat(&quot;^t&quot;), match_feat(&quot;^f&quot;)), ncol = nrow(y))
-data_Merged_tab$featDomain &lt;- factor(x %*% y, labels = c(&quot;Time&quot;, &quot;Freq&quot;))
-x &lt;- matrix(c(match_feat(&quot;Acc&quot;), match_feat(&quot;Gyro&quot;)), ncol = nrow(y))
-data_Merged_tab$featInstrument &lt;- factor(x %*% y, labels = c(&quot;Accelerometer&quot;, &quot;Gyroscope&quot;))
-x &lt;- matrix(c(match_feat(&quot;BodyAcc&quot;), match_feat(&quot;GravityAcc&quot;)), ncol = nrow(y))
-data_Merged_tab$featAcceleration &lt;- factor(x %*% y, labels = c(NA, &quot;Body&quot;, &quot;Gravity&quot;))
-x &lt;- matrix(c(match_feat(&quot;mean()&quot;), match_feat(&quot;std()&quot;)), ncol = nrow(y))
-data_Merged_tab$featVariable &lt;- factor(x %*% y, labels = c(&quot;Mean&quot;, &quot;SD&quot;))
-## Features with 1 category
-data_Merged_tab$featJerk &lt;- factor(match_feat(&quot;Jerk&quot;), labels = c(NA, &quot;Jerk&quot;))
-data_Merged_tab$featMagnitude &lt;- factor(match_feat(&quot;Mag&quot;), labels = c(NA, &quot;Magnitude&quot;))
-## Features with 3 categories
-n &lt;- 3
-y &lt;- matrix(seq(1, n), nrow = n)
-x &lt;- matrix(c(match_feat(&quot;-X&quot;), match_feat(&quot;-Y&quot;), match_feat(&quot;-Z&quot;)), ncol = nrow(y))
-data_Merged_tab$featAxis &lt;- factor(x %*% y, labels = c(NA, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;))
-
-# Check to make sure all possible combinations of feature are accounted for by all possible combinations of the factor class variables.
+# Fetch column names
 #
-r1 &lt;- nrow(data_Merged_tab[, .N, by = c(&quot;feature&quot;)])
-r2 &lt;- nrow(data_Merged_tab[, .N, by = c(&quot;featDomain&quot;, &quot;featAcceleration&quot;, &quot;featInstrument&quot;, 
-                           &quot;featJerk&quot;, &quot;featMagnitude&quot;, &quot;featVariable&quot;, &quot;featAxis&quot;)])
-r1 == r2</code></pre>
-<pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>## From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+data_vars &lt;- names(merged_Data)
 
-setkey(data_Merged_tab, subject, activity, featDomain, featAcceleration, featInstrument, 
-       featJerk, featMagnitude, featVariable, featAxis)
-Tidy_data_Set &lt;- data_Merged_tab[, list(count = .N, average = mean(value)), by = key(data_Merged_tab)]
+# 53 mean variables
+mean_vars &lt;- grep(&quot;mean&quot;,tolower(data_vars),value=TRUE)
+# 33 std variables
+std_vars &lt;- grep(&quot;std&quot;,tolower(data_vars),value=TRUE)
+
+# Store lables
+ActSub &lt;- c(&quot;activityid&quot;,&quot;subject&quot;)
+
+meanStd_fields &lt;- c(mean_vars,std_vars,ActSub)
+meanStd_filtered &lt;- merged_Data[,meanStd_fields]
+
+##########################################################################################################
+# Step 3. Use descriptive activity names to name the activities in the data set
+##########################################################################################################
+meanStd_filtered &lt;- merge(meanStd_filtered,activity_labels,by.x=&quot;activityid&quot;,by.y=&quot;V1&quot;,all=TRUE)
+
+##########################################################################################################
+# Step 4. Appropriately label the data set with descriptive activity names. 
+##########################################################################################################
+
+# get all the current column names
+meanStd_filterednames &lt;- colnames(meanStd_filtered)
+
+# Rename the &quot;V2&quot; column name to the descriptive column name &quot;activity&quot;
+meanStd_filterednames[89] &lt;- &quot;activity&quot;
+
+# Get rid of  &quot;()&quot; from column lable
+meanStd_filterednames &lt;- sub(&quot;\\()&quot;,&quot;&quot;,meanStd_filterednames)
+
+# reassign more descriptive column names
+colnames(meanStd_filtered) &lt;- meanStd_filterednames
+
+##########################################################################################################
+# Step 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable 
+#    for each activity and each subject.
+##########################################################################################################
+
+# remove 'activitiyid' column
+
+meanStd_filtered &lt;- subset(meanStd_filtered, select=-c(activityid))
+
+Tidy_data_Set = ddply(meanStd_filtered, c(&quot;subject&quot;,&quot;activity&quot;), numcolwise(mean))
+
 #
 # Write Output to file
 #
 f &lt;- file.path(output_path, &quot;ActivityMeasurementUsingSmartPhone.txt&quot;)
-write.table(Tidy_data_Set, f, quote = FALSE, sep = &quot;\t&quot;, row.names = FALSE)</code></pre>
+write.table(Tidy_data_Set, f, quote = FALSE, sep = &quot;\t&quot;, row.names = FALSE)
+#
+# Write Codebook to file
+#
+cf &lt;- file.path(output_path, &quot;Codebook.md&quot;)
+Write(codebook(Tidy_data_Set),
+      file=cf)</code></pre>
 
 
 
