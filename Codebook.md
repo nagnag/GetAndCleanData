@@ -1,3 +1,41 @@
+** Description of Data**
+
+The experiments have been carried out with a group of 30 volunteers. Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on their waist. The obtained dataset has been randomly partitioned into two sets, where 70% of the volunteers was selected for generating the training data and 30% the test data.
+
+1. features_list set contains 561 variables (561-feature vector with time and frequency domain variables), derived from the two dependent measures, 3-axial linear acceleration and 3-axial angular velocity (tAcc-XYZ and tGyro-XYZ)
+
+2. The activity_labels data set contains the 6 activity names: WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING
+
+3. The train_activity_Id data set contains activity IDs for training set (1:6).
+
+4. The test_activity_Id data set contains activity IDs for test set (1:6).
+
+5. The Train_obs data set contains observations/subject in the training partition (21 subjects, 7352 total obs).
+
+6. The Test_obs data set contains observations/subject in the test partition (we have data from 9 subjects, 2947 total obs).
+
+7. The Training_Set contains all the training data (7352 obs of 561 derived variables).
+
+8. The Test_Set data set contains all the test data (2947 obs of 561 derived variables).
+
+Run the R script after changing the working directory in the script as appropriate. It should create the final tidy data set in the output subdirectory ( must be created or exist).
+
+**Processing Steps**
+
+To arrive at the final tidy data set, 'Tidy_data_Set,' the R script performs the following 5 transformations:
+
+Merge the training and the test sets to create one data set. It creates complete training and test data sets by adding subject variable and activityId variable to Train_obs & Test_obs; Test set is then merged with Training set.
+
+Extract only the measurements on the mean and standard deviation for each measurement ( 33 std and 53 mean variables). Only these 86 variablers are filtered out.
+
+Descriptive activity names are applied to the merged data set.
+
+From the data set at this point, it then creates a second, independent tidy data set with the average of each variable for each activity and each subject using the ddply method.
+
+
+Here is a description of the variables generated using memisc - 
+
+
 ======================================================================================================================================
 
    subject
