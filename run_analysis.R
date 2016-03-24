@@ -37,6 +37,11 @@ library(memisc)
 #
 setwd("C:\\R\\CleanData\\Project")
 wd <- getwd()
+#
+# set path
+#
+input_path <- paste0(wd,"\\UCI HAR Dataset")
+output_path <- paste0(wd,"\\output")
 
 ##
 ## Download file
@@ -48,9 +53,6 @@ download.file(file_url, file.path(wd, file_name))
 ## Extract file from zip
 ##
 unzip(file_name)
-#
-#
-output_path <- paste0(wd,"\\output")
 list.files(input_path, recursive = TRUE)
 
 
